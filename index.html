@@ -43,28 +43,30 @@
                 dinoY += dinoVelocityY;
                 if (dinoY > groundY) {
                     dinoY = groundY;
+ TikTok video thumbnail
                     dinoVelocityY = 0;
                 }
-                image(dinoImg, dinoX, dinoY - dinoImg.height, 50, 50);
+                // Draw dino larger and lower
+                image(dinoImg, dinoX, dinoY - dinoImg.height + 20, 80, 80);
                 
                 // Spawn cacti
                 if (frameCount % 60 === 0) {
-                    cacti.push({ x: width, y: groundY - 40 });
+                    cacti.push({ x: width, y: groundY - 60 });
                 }
                 
-                // Update and draw cacti
+                // Update and draw cacti (larger)
                 for (let i = cacti.length - 1; i >= 0; i--) {
                     cacti[i].x -= 5;
-                    image(cigImg, cacti[i].x, cacti[i].y, 30, 40);
+                    image(cigImg, cacti[i].x, cacti[i].y, 50, 60);
                     
-                    // Collision detection
-                    if (cacti[i].x > dinoX - 30 && cacti[i].x < dinoX + 50 &&
-                        dinoY > cacti[i].y - 40) {
+                    // Collision detection adjusted for larger sizes
+                    if (cacti[i].x > dinoX - 50 && cacti[i].x < dinoX + 80 &&
+                        dinoY > cacti[i].y - 60) {
                         gameOver = true;
                     }
                     
                     // Remove off-screen cacti
-                    if (cacti[i].x < -30) {
+                    if (cacti[i].x < -50) {
                         cacti.splice(i, 1);
                     }
                 }

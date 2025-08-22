@@ -72,9 +72,12 @@
             <canvas id="game" width="1200" height="500" aria-label="Dino Jumper spelbräde"></canvas>
             <div class="overlay" id="overlay">
                 <div>
-                    <h2>Tryck för att starta</h2>
+                    <h2>Välj karaktär</h2>
                     <p>Hoppa med <strong>Mellanslag</strong>, <strong>↑</strong>, <strong>W</strong> eller <strong>Tryck/Touch</strong></p>
-                    <div class="btns"><button id="startBtn">Starta</button></div>
+                    <div class="btns">
+                        <button id="selectMartin">Martin Borg (dino.png)</button>
+                        <button id="selectElisabeth">Elisabeth Lindskoug (dino2.png)</button>
+                    </div>
                     <p style="margin-top:12px; font-size:13px">Tips: Hindrens hastighet ökar gradvis. Träff = Game Over.</p>
                 </div>
             </div>
@@ -100,10 +103,12 @@
         const canvas = document.getElementById('game');
         const ctx = canvas.getContext('2d');
         const overlay = document.getElementById('overlay');
-        const startBtn = document.getElementById('startBtn');
+        const selectMartin = document.getElementById('selectMartin');
+        const selectElisabeth = document.getElementById('selectElisabeth');
         const board = document.getElementById('board');
 
         let images = { dino: null, dino2: null, cig: null, bak: null };
+        let selectedDino = 'dino'; // Default to dino.png
 
         const state = {
             started: false,
@@ -131,17 +136,18 @@
             const groundY = canvas.height - CONFIG.groundHeight;
             state.dino.y = groundY - CONFIG.dinoDisplaySize.h;
             state.dino.vy = 0; state.dino.onGround = true;
-            overlay.classList.remove('hidden'); overlay.querySelector('h2').textContent = 'Tryck för att starta';
+            overlay.classList.remove('hidden'); overlay.querySelector('h2').textContent = 'Välj karaktär';
         }
 
-        function startGame() { if (!images.dino || !images.cig || !images.bak) return; overlay.classList.add('hidden'); state.started = true; state.gameOver = false; lastTime = performance.now(); requestAnimationFrame(loop); }
+        function startGame() { if (!images[selectedDino] || !images.cig || !images.bak) return; overlay.classList.add('hidden'); state.started = true; state.gameOver = false; lastTime = performance.now(); requestAnimationFrame(loop); }
         function gameOver() { state.gameOver = true; state.started = false; state.high = Math.max(state.high, Math.floor(state.score)); overlay.classList.remove('hidden'); overlay.querySelector('h2').textContent = 'Game Over'; overlay.querySelector('p').innerHTML = `Poäng: <strong>${Math.floor(state.score)}</strong> · Bästa: <strong>${state.high}</strong>`; }
 
         function tryJump() { if (state.gameOver) return; if (state.dino.onGround) { state.dino.vy = -CONFIG.jumpVelocity; state.dino.onGround = false; } }
 
         window.addEventListener('keydown', (e) => { if (['Space','ArrowUp','KeyW'].includes(e.code)) { e.preventDefault(); if (!state.started) startGame(); tryJump(); } if (e.code==='Enter'&&state.gameOver) reset(); });
         board.addEventListener('pointerdown', () => { if (!state.started) startGame(); tryJump(); });
-        startBtn.addEventListener('click', () => { if (state.gameOver) reset(); startGame(); });
+        selectMartin.addEventListener('click', () => { selectedDino = 'dino'; startGame(); });
+        selectElisabeth.addEventListener('click', () => { selectedDino = 'dino2'; startGame(); });
 
         let lastTime = 0;
         function loop(now) { const dt=Math.min(0.032,(now-lastTime)/1000); lastTime=now; update(dt); render(); if(state.started) requestAnimationFrame(loop); }
@@ -179,7 +185,7 @@
             const groundY = canvas.height - CONFIG.groundHeight; ctx.fillStyle='#0f1b2f'; ctx.fillRect(0,groundY,canvas.width,CONFIG.groundHeight);
             drawParallax(groundY);
             for (const o of state.obstacles) ctx.drawImage(images.cig, o.x, o.y, o.w, o.h);
-            ctx.drawImage(images.dino, state.dino.x, state.dino.y, CONFIG.dinoDisplaySize.w, CONFIG.dinoDisplaySize.h);
+            ctx.drawImage(images[selectedDino], state.dino.x, state.dino.y, CONFIG.dinoDisplaySize.w, CONFIG.dinoDisplaySize.h);
             ctx.font='bold 20px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas'; ctx.textAlign='left'; ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fillText(`POÄNG ${formatScore(state.score)}`,14,28);
             ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.fillText(`BÄSTA ${formatScore(state.high)}`,canvas.width-14,28);
             if (state.gameOver) { ctx.textAlign='center'; ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(canvas.width/2-140,canvas.height/2-40,280,80); ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fillText('Tryck ENTER eller klicka för att spela igen',canvas.width/2,canvas.height/2+4); }
@@ -190,7 +196,7 @@
         function fitCanvas() { const maxW=Math.min(1200,board.clientWidth); const aspect=canvas.width/canvas.height; canvas.style.width=maxW+'px'; canvas.style.height=(maxW/aspect)+'px'; }
         window.addEventListener('resize', fitCanvas);
 
-        (async function boot(){ try{ await preload(); } catch(e){ console.error('Kunde inte ladda bilderna. Se till att dino.png, cig.png och bak.png ligger bredvid index.html.', e); } fitCanvas(); reset(); render(); })();
+        (async function boot(){ try{ await preload(); } catch(e){ console.error('Kunde inte ladda bilderna. Se till att dino.png, dino2.png, cig.png och bak.png ligger bredvid index.html.', e); } fitCanvas(); reset(); render(); })();
     </script>
 </body>
 </html>

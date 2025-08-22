@@ -16,18 +16,35 @@
         let cacti = [];
         let score = 0;
         let gameOver = false;
+        let imagesLoaded = false;
 
         function preload() {
-            dinoImg = loadImage('dino.png');
-            cigImg = loadImage('cig.png');
+            try {
+                dinoImg = loadImage('dino.png');
+                cigImg = loadImage('cig.png');
+                imagesLoaded = true;
+            } catch (error) {
+                console.error("Error loading images:", error);
+                imagesLoaded = false;
+            }
         }
 
         function setup() {
             createCanvas(800, 400);
-            dinoX = 100;
             groundY = height - 50;
-            dinoY = groundY - dinoImg.height; // Placera dino på marken baserat på bildens höjd
-            dinoVelocityY = 0;
+            if (imagesLoaded) {
+                dinoX = 100;
+                dinoY = groundY - dinoImg.height; // Placera dino på marken baserat på bildens höjd
+                dinoVelocityY = 0;
+            } else {
+                // Fallback om bilder inte laddas
+                dinoX = 100;
+                dinoY = groundY - 50; // Standardhöjd om bild saknas
+                dinoVelocityY = 0;
+                textSize(20);
+                textAlign(CENTER);
+                text("Bilder (dino.png eller cig.png) saknas. Ladda upp dem!", width / 2, height / 2);
+            }
         }
 
         function draw() {
@@ -37,7 +54,7 @@
             stroke(0);
             line(0, groundY, width, groundY);
             
-            if (!gameOver) {
+            if (imagesLoaded && !gameOver) {
                 // Update dino
                 dinoVelocityY += gravity;
                 dinoY += dinoVelocityY;
@@ -58,7 +75,7 @@
                     cacti[i].x -= 5;
                     image(cigImg, cacti[i].x, cacti[i].y, 60, 20);
                     
-                    // Collision detection adjusted for proper jump
+                    // Collision detection
                     if (cacti[i].x < dinoX + 100 && cacti[i].x + 60 > dinoX &&
                         dinoY + 100 > cacti[i].y && dinoY < cacti[i].y + 20) {
                         gameOver = true;
@@ -72,20 +89,26 @@
                 
                 // Update score
                 score += 0.1;
-            } else {
+            } else if (!imagesLoaded) {
+                textSize(20);
+                textAlign(CENTER);
+                text("Bilder saknas. Ladda upp dino.png och cig.png!", width / 2, height / 2);
+            } else if (gameOver) {
                 textSize(32);
                 textAlign(CENTER);
                 text('Game Over! Score: ' + floor(score), width / 2, height / 2);
             }
             
             // Draw score
-            textSize(20);
-            textAlign(LEFT);
-            text('Score: ' + floor(score), 10, 30);
+            if (imagesLoaded) {
+                textSize(20);
+                textAlign(LEFT);
+                text('Score: ' + floor(score), 10, 30);
+            }
         }
 
         function keyPressed() {
-            if (keyCode === 32 && dinoY >= groundY - dinoImg.height && !gameOver) {
+            if (imagesLoaded && keyCode === 32 && dinoY >= groundY - dinoImg.height && !gameOver) {
                 dinoVelocityY = jumpPower;
             }
         }

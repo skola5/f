@@ -26,7 +26,7 @@
             createCanvas(800, 400);
             dinoX = 100;
             groundY = height - 50;
-            dinoY = groundY;
+            dinoY = groundY - dinoImg.height; // Placera dino på marken baserat på bildens höjd
             dinoVelocityY = 0;
         }
 
@@ -41,26 +41,26 @@
                 // Update dino
                 dinoVelocityY += gravity;
                 dinoY += dinoVelocityY;
-                if (dinoY > groundY) {
-                    dinoY = groundY;
+                if (dinoY > groundY - dinoImg.height) { // Håll dino på marken
+                    dinoY = groundY - dinoImg.height;
                     dinoVelocityY = 0;
                 }
-                // Draw dino larger (100x100) and lower
-                image(dinoImg, dinoX, dinoY - dinoImg.height + 50, 100, 100);
+                // Draw dino (100x100) on ground
+                image(dinoImg, dinoX, dinoY, 100, 100);
                 
                 // Spawn cacti
                 if (frameCount % 60 === 0) {
-                    cacti.push({ x: width, y: groundY - 40 });
+                    cacti.push({ x: width, y: groundY - cigImg.height + 10 }); // Placera cig nära marken
                 }
                 
-                // Update and draw cacti (larger, 60x20)
+                // Update and draw cacti (normal size, 60x20)
                 for (let i = cacti.length - 1; i >= 0; i--) {
                     cacti[i].x -= 5;
                     image(cigImg, cacti[i].x, cacti[i].y, 60, 20);
                     
-                    // Collision detection adjusted for new sizes
-                    if (cacti[i].x > dinoX - 60 && cacti[i].x < dinoX + 100 &&
-                        dinoY > cacti[i].y - 20) {
+                    // Collision detection adjusted for proper jump
+                    if (cacti[i].x < dinoX + 100 && cacti[i].x + 60 > dinoX &&
+                        dinoY + 100 > cacti[i].y && dinoY < cacti[i].y + 20) {
                         gameOver = true;
                     }
                     
@@ -85,7 +85,7 @@
         }
 
         function keyPressed() {
-            if (keyCode === 32 && dinoY >= groundY && !gameOver) {
+            if (keyCode === 32 && dinoY >= groundY - dinoImg.height && !gameOver) {
                 dinoVelocityY = jumpPower;
             }
         }

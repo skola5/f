@@ -19,12 +19,14 @@
         let imagesLoaded = false;
 
         function preload() {
+            console.log("Försöker ladda bilder...");
             try {
                 dinoImg = loadImage('dino.png');
                 cigImg = loadImage('cig.png');
+                console.log("Bilder laddade:", dinoImg.width, dinoImg.height, cigImg.width, cigImg.height);
                 imagesLoaded = true;
             } catch (error) {
-                console.error("Error loading images:", error);
+                console.error("Fel vid laddning av bilder:", error);
                 imagesLoaded = false;
             }
         }
@@ -34,16 +36,14 @@
             groundY = height - 50;
             if (imagesLoaded) {
                 dinoX = 100;
-                dinoY = groundY - dinoImg.height; // Placera dino på marken baserat på bildens höjd
+                dinoY = groundY - dinoImg.height; // Placera dino på marken
                 dinoVelocityY = 0;
+                console.log("Spelet startar med dino på", dinoY);
             } else {
-                // Fallback om bilder inte laddas
                 dinoX = 100;
-                dinoY = groundY - 50; // Standardhöjd om bild saknas
+                dinoY = groundY - 50; // Fallback om bild saknas
                 dinoVelocityY = 0;
-                textSize(20);
-                textAlign(CENTER);
-                text("Bilder (dino.png eller cig.png) saknas. Ladda upp dem!", width / 2, height / 2);
+                console.log("Bilder saknas, använder fallback.");
             }
         }
 
@@ -58,22 +58,24 @@
                 // Update dino
                 dinoVelocityY += gravity;
                 dinoY += dinoVelocityY;
-                if (dinoY > groundY - dinoImg.height) { // Håll dino på marken
+                if (dinoY > groundY - dinoImg.height) {
                     dinoY = groundY - dinoImg.height;
                     dinoVelocityY = 0;
                 }
-                // Draw dino (100x100) on ground
                 image(dinoImg, dinoX, dinoY, 100, 100);
+                console.log("Ritar dino på", dinoY);
                 
                 // Spawn cacti
                 if (frameCount % 60 === 0) {
-                    cacti.push({ x: width, y: groundY - cigImg.height + 10 }); // Placera cig nära marken
+                    cacti.push({ x: width, y: groundY - cigImg.height + 10 });
+                    console.log("Spawnar ny cig på", width, groundY - cigImg.height + 10);
                 }
                 
-                // Update and draw cacti (normal size, 60x20)
+                // Update and draw cacti
                 for (let i = cacti.length - 1; i >= 0; i--) {
                     cacti[i].x -= 5;
                     image(cigImg, cacti[i].x, cacti[i].y, 60, 20);
+                    console.log("Ritar cig på", cacti[i].x, cacti[i].y);
                     
                     // Collision detection
                     if (cacti[i].x < dinoX + 100 && cacti[i].x + 60 > dinoX &&
@@ -81,30 +83,25 @@
                         gameOver = true;
                     }
                     
-                    // Remove off-screen cacti
                     if (cacti[i].x < -60) {
                         cacti.splice(i, 1);
                     }
                 }
                 
-                // Update score
                 score += 0.1;
             } else if (!imagesLoaded) {
                 textSize(20);
                 textAlign(CENTER);
-                text("Bilder saknas. Ladda upp dino.png och cig.png!", width / 2, height / 2);
+                text("Bilder (dino.png eller cig.png) saknas. Ladda upp dem!", width / 2, height / 2);
             } else if (gameOver) {
                 textSize(32);
                 textAlign(CENTER);
                 text('Game Over! Score: ' + floor(score), width / 2, height / 2);
             }
             
-            // Draw score
-            if (imagesLoaded) {
-                textSize(20);
-                textAlign(LEFT);
-                text('Score: ' + floor(score), 10, 30);
-            }
+            textSize(20);
+            textAlign(LEFT);
+            text('Score: ' + floor(score), 10, 30);
         }
 
         function keyPressed() {

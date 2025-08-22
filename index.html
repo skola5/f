@@ -6,11 +6,11 @@
   <title>Dino Jumper</title>
   <style>
     :root {
-      --bg: #0f172a;          /* slate-900 */
-      --panel: #111827;       /* gray-900 */
-      --text: #e5e7eb;        /* gray-200 */
-      --accent: #22d3ee;      /* cyan-400 */
-      --muted: #94a3b8;       /* slate-400 */
+      --bg: #0f172a;
+      --panel: #111827;
+      --text: #e5e7eb;
+      --accent: #22d3ee;
+      --muted: #94a3b8;
     }
 
     * { box-sizing: border-box; }
@@ -24,9 +24,7 @@
       padding: 16px;
     }
 
-    .wrap {
-      width: min(920px, 100%);
-    }
+    .wrap { width: min(920px, 100%); }
 
     .card {
       background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
@@ -36,10 +34,7 @@
       padding: 18px;
     }
 
-    header {
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      margin-bottom: 12px;
-    }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
     header h1 { font-size: clamp(18px, 2.6vw, 28px); margin: 0; letter-spacing: .3px; }
 
     .meta { display: flex; align-items: center; gap: 16px; font-size: 14px; color: var(--muted); }
@@ -48,10 +43,7 @@
     .board { position: relative; background: #0b1220; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
     canvas { display: block; width: 100%; height: auto; }
 
-    .overlay {
-      position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 20px;
-      background: linear-gradient(180deg, rgba(2,6,23,0.0), rgba(2,6,23,0.42));
-    }
+    .overlay { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 20px; background: linear-gradient(180deg, rgba(2,6,23,0.0), rgba(2,6,23,0.42)); }
     .overlay.hidden { display: none; }
 
     .overlay h2 { margin: 0 0 8px; font-size: clamp(20px, 3vw, 36px); }
@@ -72,7 +64,7 @@
     <header>
       <h1>Dino Jumper</h1>
       <div class="meta">
-        <div class="pill">Ladda upp <code>dino.png</code> (200×200) & <code>cig.png</code> (1600×1301) i samma mapp</div>
+        <div class="pill">Ladda upp <code>dino.png</code> & <code>cig.png</code> i samma mapp</div>
       </div>
     </header>
 
@@ -82,35 +74,29 @@
         <div>
           <h2>Tryck för att starta</h2>
           <p>Hoppa med <strong>Mellanslag</strong>, <strong>↑</strong>, <strong>W</strong> eller <strong>Tryck/Touch</strong></p>
-          <div class="btns">
-            <button id="startBtn">Starta</button>
-          </div>
+          <div class="btns"><button id="startBtn">Starta</button></div>
           <p style="margin-top:12px; font-size:13px">Tips: Hindrens hastighet ökar gradvis. Träff = Game Over.</p>
         </div>
       </div>
     </div>
 
-    <footer>
-      Byggt i ren HTML5 Canvas + JS. Perfekt för GitHub Pages – lägg bara <code>index.html</code>, <code>dino.png</code> och <code>cig.png</code> i repot.
-    </footer>
+    <footer>Byggt i ren HTML5 Canvas + JS. Perfekt för GitHub Pages – lägg bara <code>index.html</code>, <code>dino.png</code> och <code>cig.png</code> i repot.</footer>
   </div>
 
   <script>
-    // ====== Spelkonfiguration ======
     const CONFIG = {
-      gravity: 2100,           // px/s^2
-      jumpVelocity: 880,       // px/s
-      initialSpeed: 380,       // px/s
-      speedRamp: 0.06,         // % per sekund
-      spawnEveryMin: 0.95,     // s
-      spawnEveryMax: 1.65,     // s
-      groundHeight: 56,        // px från nederkant
-      dinoDisplaySize: { w: 200, h: 200 }, // enligt din specifikation
+      gravity: 2100,
+      jumpVelocity: 920,
+      initialSpeed: 380,
+      speedRamp: 0.06,
+      spawnEveryMin: 1.2,
+      spawnEveryMax: 1.8,
+      groundHeight: 56,
+      dinoDisplaySize: { w: 120, h: 120 }, // mindre dino
       maxLives: 1,
-      hitboxShrink: 0.85       // gör kollision lite snällare
+      hitboxShrink: 0.85
     };
 
-    // ====== Grundläggande tillstånd ======
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
     const overlay = document.getElementById('overlay');
@@ -126,279 +112,85 @@
       speed: CONFIG.initialSpeed,
       score: 0,
       high: 0,
-      dino: {
-        x: 60,
-        y: 0, // sätts efter att vi vet marknivån
-        vy: 0,
-        onGround: true,
-      },
+      dino: { x: 60, y: 0, vy: 0, onGround: true },
       obstacles: [],
       spawnTimer: 0,
       nextSpawnIn: 1.2,
     };
 
-    // ====== Hjälpfunktioner ======
     function rand(min, max) { return Math.random() * (max - min) + min; }
-
-    function rectsCollide(a, b) {
-      return (
-        a.x < b.x + b.w &&
-        a.x + a.w > b.x &&
-        a.y < b.y + b.h &&
-        a.y + a.h > b.y
-      );
-    }
-
-    function scaledHitbox(x, y, w, h, scale) {
-      const dw = w * scale, dh = h * scale;
-      return { x: x + (w - dw) / 2, y: y + (h - dh) / 2, w: dw, h: dh };
-    }
-
+    function rectsCollide(a, b) { return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y); }
+    function scaledHitbox(x, y, w, h, scale) { const dw=w*scale, dh=h*scale; return { x: x+(w-dw)/2, y: y+(h-dh)/2, w: dw, h: dh }; }
     function formatScore(n) { return String(Math.floor(n)).padStart(5, '0'); }
 
-    // ====== Bildinladdning ======
-    function loadImage(src) {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = src;
-      });
-    }
+    function loadImage(src) { return new Promise((resolve, reject) => { const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=src; }); }
+    async function preload() { const [dino, cig] = await Promise.all([loadImage('dino.png'), loadImage('cig.png')]); images.dino = dino; images.cig = cig; }
 
-    async function preload() {
-      const [dino, cig] = await Promise.all([
-        loadImage('dino.png'),
-        loadImage('cig.png'),
-      ]);
-      images.dino = dino;
-      images.cig = cig;
-    }
-
-    // ====== Init ======
     function reset() {
-      state.started = false;
-      state.gameOver = false;
-      state.time = 0;
-      state.speed = CONFIG.initialSpeed;
-      state.score = 0;
-      state.obstacles = [];
-      state.spawnTimer = 0;
-      state.nextSpawnIn = rand(CONFIG.spawnEveryMin, CONFIG.spawnEveryMax);
-
+      state.started = false; state.gameOver = false; state.time = 0; state.speed = CONFIG.initialSpeed; state.score = 0; state.obstacles = []; state.spawnTimer = 0; state.nextSpawnIn = rand(CONFIG.spawnEveryMin, CONFIG.spawnEveryMax);
       const groundY = canvas.height - CONFIG.groundHeight;
       state.dino.y = groundY - CONFIG.dinoDisplaySize.h;
-      state.dino.vy = 0;
-      state.dino.onGround = true;
-
-      overlay.classList.remove('hidden');
-      overlay.querySelector('h2').textContent = 'Tryck för att starta';
+      state.dino.vy = 0; state.dino.onGround = true;
+      overlay.classList.remove('hidden'); overlay.querySelector('h2').textContent = 'Tryck för att starta';
     }
 
-    function startGame() {
-      if (!images.dino || !images.cig) return; // säkra
-      overlay.classList.add('hidden');
-      state.started = true;
-      state.gameOver = false;
-      lastTime = performance.now();
-      requestAnimationFrame(loop);
-    }
+    function startGame() { if (!images.dino || !images.cig) return; overlay.classList.add('hidden'); state.started = true; state.gameOver = false; lastTime = performance.now(); requestAnimationFrame(loop); }
+    function gameOver() { state.gameOver = true; state.started = false; state.high = Math.max(state.high, Math.floor(state.score)); overlay.classList.remove('hidden'); overlay.querySelector('h2').textContent = 'Game Over'; overlay.querySelector('p').innerHTML = `Poäng: <strong>${Math.floor(state.score)}</strong> · Bästa: <strong>${state.high}</strong>`; }
 
-    function gameOver() {
-      state.gameOver = true;
-      state.started = false;
-      state.high = Math.max(state.high, Math.floor(state.score));
-      overlay.classList.remove('hidden');
-      overlay.querySelector('h2').textContent = 'Game Over';
-      overlay.querySelector('p').innerHTML = `Poäng: <strong>${Math.floor(state.score)}</strong> · Bästa: <strong>${state.high}</strong>`;
-    }
+    function tryJump() { if (state.gameOver) return; if (state.dino.onGround) { state.dino.vy = -CONFIG.jumpVelocity; state.dino.onGround = false; } }
 
-    // ====== Input ======
-    function tryJump() {
-      if (state.gameOver) return;
-      if (state.dino.onGround) {
-        state.dino.vy = -CONFIG.jumpVelocity;
-        state.dino.onGround = false;
-      }
-    }
+    window.addEventListener('keydown', (e) => { if (['Space','ArrowUp','KeyW'].includes(e.code)) { e.preventDefault(); if (!state.started) startGame(); tryJump(); } if (e.code==='Enter'&&state.gameOver) reset(); });
+    board.addEventListener('pointerdown', () => { if (!state.started) startGame(); tryJump(); });
+    startBtn.addEventListener('click', () => { if (state.gameOver) reset(); startGame(); });
 
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
-        e.preventDefault();
-        if (!state.started) startGame();
-        tryJump();
-      }
-      if (e.code === 'Enter' && state.gameOver) {
-        reset();
-      }
-    });
-
-    // Touch/Click
-    board.addEventListener('pointerdown', () => {
-      if (!state.started) startGame();
-      tryJump();
-    });
-
-    startBtn.addEventListener('click', () => {
-      if (state.gameOver) reset();
-      startGame();
-    });
-
-    // ====== Loop ======
     let lastTime = 0;
-    function loop(now) {
-      const dt = Math.min(0.032, (now - lastTime) / 1000); // cap dt
-      lastTime = now;
-      update(dt);
-      render();
-      if (state.started) requestAnimationFrame(loop);
-    }
+    function loop(now) { const dt=Math.min(0.032,(now-lastTime)/1000); lastTime=now; update(dt); render(); if(state.started) requestAnimationFrame(loop); }
 
     function update(dt) {
-      // Öka fart + poäng
       state.speed *= (1 + CONFIG.speedRamp * dt);
       state.score += state.speed * dt * 0.05;
-
       const groundY = canvas.height - CONFIG.groundHeight;
-
-      // Dino fysik
       state.dino.vy += CONFIG.gravity * dt;
       state.dino.y += state.dino.vy * dt;
-      const dinoBottom = state.dino.y + CONFIG.dinoDisplaySize.h;
-      if (dinoBottom >= groundY) {
-        state.dino.y = groundY - CONFIG.dinoDisplaySize.h;
-        state.dino.vy = 0;
-        state.dino.onGround = true;
-      }
+      if (state.dino.y + CONFIG.dinoDisplaySize.h >= groundY) { state.dino.y = groundY - CONFIG.dinoDisplaySize.h; state.dino.vy = 0; state.dino.onGround = true; }
 
-      // Hinder-spawn
       state.spawnTimer += dt;
       if (state.spawnTimer >= state.nextSpawnIn) {
-        state.spawnTimer = 0;
-        state.nextSpawnIn = rand(CONFIG.spawnEveryMin, CONFIG.spawnEveryMax);
-
-        // Skala cig.png till rimlig storlek (bevarar bildförhållande 1600x1301)
-        const baseH = rand(70, 120); // pixelhöjd på skärmen
-        const ar = images.cig.width / images.cig.height; // ~1.229
-        const w = baseH * ar;
-        const h = baseH;
-
-        state.obstacles.push({
-          x: canvas.width + rand(0, 60),
-          y: groundY - h,
-          w, h,
-        });
+        state.spawnTimer = 0; state.nextSpawnIn = rand(CONFIG.spawnEveryMin, CONFIG.spawnEveryMax);
+        const baseH = rand(50, 80); // mindre hinder
+        const ar = images.cig.width / images.cig.height;
+        const w = baseH * ar; const h = baseH;
+        state.obstacles.push({ x: canvas.width + rand(0,60), y: groundY - h, w, h });
       }
 
-      // Flytta hinder + ta bort de som lämnat skärmen
       for (const o of state.obstacles) o.x -= state.speed * dt;
       state.obstacles = state.obstacles.filter(o => o.x + o.w > -10);
 
-      // Kollisioner
       const dinoBox = scaledHitbox(state.dino.x, state.dino.y, CONFIG.dinoDisplaySize.w, CONFIG.dinoDisplaySize.h, CONFIG.hitboxShrink);
       for (const o of state.obstacles) {
         const oBox = scaledHitbox(o.x, o.y, o.w, o.h, CONFIG.hitboxShrink);
-        if (rectsCollide(dinoBox, oBox)) {
-          gameOver();
-          break;
-        }
+        if (rectsCollide(dinoBox, oBox)) { gameOver(); break; }
       }
     }
 
-    // ====== Render ======
     function render() {
-      // Bakgrund
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Himmel gradient
-      const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      g.addColorStop(0, '#0b1020');
-      g.addColorStop(1, '#0e1726');
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Mark
-      const groundY = canvas.height - CONFIG.groundHeight;
-      ctx.fillStyle = '#0f1b2f';
-      ctx.fillRect(0, groundY, canvas.width, CONFIG.groundHeight);
-
-      // Fjärr-parallax
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      const g=ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,'#0b1020'); g.addColorStop(1,'#0e1726'); ctx.fillStyle=g; ctx.fillRect(0,0,canvas.width,canvas.height);
+      const groundY = canvas.height - CONFIG.groundHeight; ctx.fillStyle='#0f1b2f'; ctx.fillRect(0,groundY,canvas.width,CONFIG.groundHeight);
       drawParallax(groundY);
-
-      // Hinder
-      for (const o of state.obstacles) {
-        ctx.drawImage(images.cig, o.x, o.y, o.w, o.h);
-      }
-
-      // Dino
+      for (const o of state.obstacles) ctx.drawImage(images.cig, o.x, o.y, o.w, o.h);
       ctx.drawImage(images.dino, state.dino.x, state.dino.y, CONFIG.dinoDisplaySize.w, CONFIG.dinoDisplaySize.h);
-
-      // UI (poäng)
-      ctx.font = 'bold 20px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
-      ctx.textAlign = 'left';
-      ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      ctx.fillText(`POÄNG ${formatScore(state.score)}`, 14, 28);
-
-      ctx.textAlign = 'right';
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
-      ctx.fillText(`BÄSTA ${formatScore(state.high)}`, canvas.width - 14, 28);
-
-      if (state.gameOver) {
-        ctx.textAlign = 'center';
-        ctx.fillStyle = 'rgba(255,255,255,0.08)';
-        ctx.fillRect(canvas.width/2 - 140, canvas.height/2 - 40, 280, 80);
-        ctx.fillStyle = 'rgba(255,255,255,0.85)';
-        ctx.fillText('Tryck ENTER eller klicka för att spela igen', canvas.width/2, canvas.height/2 + 4);
-      }
+      ctx.font='bold 20px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas'; ctx.textAlign='left'; ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fillText(`POÄNG ${formatScore(state.score)}`,14,28);
+      ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.fillText(`BÄSTA ${formatScore(state.high)}`,canvas.width-14,28);
+      if (state.gameOver) { ctx.textAlign='center'; ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(canvas.width/2-140,canvas.height/2-40,280,80); ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fillText('Tryck ENTER eller klicka för att spela igen',canvas.width/2,canvas.height/2+4); }
     }
 
-    function drawParallax(groundY) {
-      const t = state.time;
-      const base = state.speed * 0.15;
-      state.time += 0.016; // för enkel animation
+    function drawParallax(groundY) { const t=state.time; const base=state.speed*0.15; state.time+=0.016; ctx.globalAlpha=0.35; for(let i=0;i<40;i++){const x=((i*120+(t*base))%(canvas.width+120))-60; const y=40+(i*23)%(groundY-80); ctx.fillStyle='#a0aec0'; ctx.fillRect(x,y,2,2);} ctx.globalAlpha=1; ctx.strokeStyle='#12213a'; ctx.lineWidth=2; ctx.beginPath(); const h=groundY-18; for(let x=0;x<=canvas.width;x+=12){const y=h-Math.abs(Math.sin((x+t*40)*0.01))*8-8; if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke(); }
 
-      // små stjärnor
-      ctx.globalAlpha = 0.35;
-      for (let i = 0; i < 40; i++) {
-        const x = ((i * 120 + (t * base)) % (canvas.width + 120)) - 60;
-        const y = 40 + (i * 23) % (groundY - 80);
-        ctx.fillStyle = '#a0aec0';
-        ctx.fillRect(x, y, 2, 2);
-      }
-      ctx.globalAlpha = 1;
-
-      // bergskontur
-      ctx.strokeStyle = '#12213a';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      const h = groundY - 18;
-      for (let x = 0; x <= canvas.width; x += 12) {
-        const y = h - Math.abs(Math.sin((x + t * 40) * 0.01)) * 8 - 8;
-        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
-
-    // ====== Responsivitet (behåll proportionerna) ======
-    function fitCanvas() {
-      const maxW = Math.min(900, board.clientWidth);
-      const aspect = canvas.width / canvas.height; // 900/320
-      canvas.style.width = maxW + 'px';
-      canvas.style.height = (maxW / aspect) + 'px';
-    }
+    function fitCanvas() { const maxW=Math.min(900,board.clientWidth); const aspect=canvas.width/canvas.height; canvas.style.width=maxW+'px'; canvas.style.height=(maxW/aspect)+'px'; }
     window.addEventListener('resize', fitCanvas);
 
-    // ====== Boot ======
-    (async function boot() {
-      try {
-        await preload();
-      } catch (e) {
-        console.error('Kunde inte ladda bilderna. Se till att dino.png och cig.png ligger bredvid index.html.', e);
-      }
-      fitCanvas();
-      reset();
-      render();
-    })();
+    (async function boot(){ try{ await preload(); } catch(e){ console.error('Kunde inte ladda bilderna. Se till att dino.png och cig.png ligger bredvid index.html.', e); } fitCanvas(); reset(); render(); })();
   </script>
 </body>
 </html>

@@ -1,97 +1,93 @@
-
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Min episka kärlek till Vipan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Dino Jumper</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="container mx-auto p-6">
-        <h1 class="text-5xl font-bold text-center text-blue-600 mb-8">Min TOTALA kärlek till gymnasieskolan Vipan!</h1>
-        
-        <section class="mb-12">
-            <h2 class="text-3xl font-semibold text-gray-800 mb-6">Varför jag är BESATT av Vipan och El och Energi</h2>
-            <p class="text-lg text-gray-700 mb-6">
-                Alltså, gymnasieskolan Vipan är LIVET! El och Energi-programmet är som att kliva in i en sci-fi-värld där jag 
-                får pyssla med elektronik, solpaneler och allt som får samhället att snurra. Jag glazar ALLT – från att koppla 
-                kretsar till att hänga i våra lyxiga korridorer med <span class="font-bold">rulltrappor</span> som får en att 
-                känna sig som en kung! Och vet du vad? Vi har till och med en <span class="font-bold">bastu</span> där vi kan 
-                slappna av efter en dag full av tekniska äventyr. Lärarna är som superhjältar, alltid redo att förklara hur man 
-                bygger en robot eller löser ett energiproblem. Jag älskar varje sekund!
-            </p>
-            <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1" alt="Glada elever i klassrum" class="w-full max-w-lg mx-auto rounded-lg shadow-lg mb-6">
-            <p class="text-lg text-gray-700 mb-6">
-                På El och Energi är varje dag ett äventyr. Vi labbar med riktiga grejer, som elmotorer och smarta system, och 
-                det känns som att vi förbereder oss för att ta över världen. Kompisarna är grymma, och vi har alltid kul – 
-                oavsett om vi löser ett problem tillsammans eller bara snackar om hur coolt det är att gå på Vipan. Skolan är 
-                som en teknisk lekplats, och jag kan inte få nog!
-            </p>
-            <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7" alt="Elever som skrattar" class="w-full max-w-lg mx-auto rounded-lg shadow-lg mb-6">
-        </section>
+<body>
+    <script>
+        let dinoImg, cigImg;
+        let dinoX, dinoY, dinoVelocityY;
+        let gravity = 0.8;
+        let jumpPower = -15;
+        let groundY;
+        let cacti = [];
+        let score = 0;
+        let gameOver = false;
 
-        <section class="mb-12">
-            <h2 class="text-3xl font-semibold text-gray-800 mb-6">Att sluta kl. 17.00 är som en dröm</h2>
-            <p class="text-lg text-gray-700 mb-6">
-                Att sluta kl. 17.00 är det bästa som finns! Efter en dag på Vipan, där vi har byggt kretsar, diskuterat 
-                förnybar energi och kanske svängt förbi bastun för att snacka om livet, känns det som att jag har erövrat 
-                världen. Rulltrapporna gör att man glider ut ur skolan med stil, och sen har jag hela kvällen att chilla, 
-                plugga eller hänga med polarna. Det är som att få en guldmedalj varje dag!
-            </p>
-            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e84f23" alt="Glada elever utomhus" class="w-full max-w-lg mx-auto rounded-lg shadow-lg mb-6">
-            <p class="text-lg text-gray-700 mb-6">
-                Frihetskänslan när klockan slår 17.00 är oslagbar. Jag kan ta en promenad, kolla en serie eller kanske 
-                fundera på nästa stora projekt vi ska göra på El och Energi. Alltså, Vipan gör mig så peppad att jag 
-                knappt kan sitta still!
-            </p>
-            <img src="https://images.unsplash.com/photo-1518791841217-8f162f1e1131" alt="Konstig bild av en katt" class="w-full max-w-lg mx-auto rounded-lg shadow-lg mb-6">
-        </section>
+        function preload() {
+            dinoImg = loadImage('dino.png');
+            cigImg = loadImage('cig.png');
+        }
 
-        <section class="mb-12">
-            <h2 class="text-3xl font-semibold text-gray-800 mb-6">Vipan är en GALEN värld!</h2>
-            <p class="text-lg text-gray-700 mb-6">
-                Vipan är inte bara en skola, det är som att kliva in i en parallell dimension! Vi har allt – toppmoderna 
-                labbsalar, rulltrappor som gör att man känner sig som en filmstjärna, och en bastu där vi kan snacka om 
-                allt från el till universums hemligheter. Jag glazar varenda sekund, och det känns som att jag lever i en 
-                teknisk utopi. Men okej, nu börjar det kanske spåra lite...
-            </p>
-            <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1" alt="Konstig bild av en hund i glasögon" class="w-full max-w-lg mx-auto rounded-lg shadow-lg mb-6">
-            <p class="text-lg text-gray-700 mb-6">
-                Haha, vad är det här för något? En hund med glasögon? Men det är så här Vipan får mig att känna – allt är 
-                möjligt! Ena stunden bygger jag en krets, nästa stund drömmer jag om att uppfinna en tidsmaskin eller kanske 
-                bara hänga med en cool hund. Skolan gör mig så inspirerad att jag börjar tänka på de mest knäppa sakerna!
-            </p>
-            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" alt="Konstig bild av en tropisk strand" class="w-full max-w-lg mx-auto rounded-lg shadow-lg mb-6">
-            <p class="text-lg text-gray-700 mb-6">
-                Okej, nu har vi hamnat på en tropisk strand? Vad är det som händer? Men det är sån här galen energi Vipan 
-                ger mig! Jag kanske pluggar el och energi, men i mitt huvud är jag redan på väg till en öde ö för att bygga 
-                en solcellsdriven resort. Allt börjar kännas som ett stort, konstigt äventyr!
-            </p>
-            <img src="https://images.unsplash.com/photo-1574169208507-84376144848b" alt="Konstig bild av ett neonlandskap" class="w-full max-w-lg mx-auto rounded-lg shadow-lg mb-6">
-        </section>
+        function setup() {
+            createCanvas(800, 400);
+            dinoX = 100;
+            groundY = height - 50;
+            dinoY = groundY;
+            dinoVelocityY = 0;
+        }
 
-        <section class="mb-12">
-            <h2 class="text-3xl font-semibold text-gray-800 mb-6">...Och nu spårar det TOTALT!</h2>
-            <p class="text-lg text-gray-700 mb-6">
-                Okej, nu har det gått för långt. Vipan är så awesome att mitt huvud har börjat snurra! Jag menar, rulltrappor, 
-                bastu, El och Energi – det är som att skolan har kastat mig in i en annan dimension där allt är möjligt. Och 
-                nu... nu börjar det bli så konstigt att jag inte ens vet vad jag säger längre...
-            </p>
-            <img src="https://images.unsplash.com/photo-1550684848-86a5d8722526" alt="Absurd bild av en flytande ananas" class="w-full max-w-lg mx-auto rounded-lg shadow-lg mb-6">
-            <p class="text-lg mb-6" lang="zh-CN">
-                好的，现在完全失控了！Vipan是如此令人兴奋，以至于我开始用中文思考！电与能源计划让我感觉像是在宇宙中遨游，而学校的滚梯和桑拿让我觉得自己是个超级明星！但是……为什么现在有一个漂浮的菠萝？这是什么？！
-            </p>
-            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" alt="Konstig bild av en katt i rymden" class="w-full max-w-lg mx-auto rounded-lg shadow-lg mb-6">
-            <p class="text-lg mb-6" lang="zh-CN">
-                现在我完全迷失了！Vipan让我觉得自己可以做任何事，但这只太空猫是怎么回事？！我爱这所学校，但它让我脑子里充满了疯狂的想法！电、能源、滚梯、桑拿……还有漂浮的猫？！我已经不知道自己在说什么了！
-            </p>
-            <img src="https://images.unsplash.com/photo-1519750783826-e2420f4d687f" alt="Absurd bild av ett surrealistiskt moln" class="w-full max-w-lg mx-auto rounded-lg shadow-lg mb-6">
-        </section>
+        function draw() {
+            background(255);
+            
+            // Draw ground
+            stroke(0);
+            line(0, groundY, width, groundY);
+            
+            if (!gameOver) {
+                // Update dino
+                dinoVelocityY += gravity;
+                dinoY += dinoVelocityY;
+                if (dinoY > groundY) {
+                    dinoY = groundY;
+                    dinoVelocityY = 0;
+                }
+                image(dinoImg, dinoX, dinoY - dinoImg.height, 50, 50);
+                
+                // Spawn cacti
+                if (frameCount % 60 === 0) {
+                    cacti.push({ x: width, y: groundY - 40 });
+                }
+                
+                // Update and draw cacti
+                for (let i = cacti.length - 1; i >= 0; i--) {
+                    cacti[i].x -= 5;
+                    image(cigImg, cacti[i].x, cacti[i].y, 30, 40);
+                    
+                    // Collision detection
+                    if (cacti[i].x > dinoX - 30 && cacti[i].x < dinoX + 50 &&
+                        dinoY > cacti[i].y - 40) {
+                        gameOver = true;
+                    }
+                    
+                    // Remove off-screen cacti
+                    if (cacti[i].x < -30) {
+                        cacti.splice(i, 1);
+                    }
+                }
+                
+                // Update score
+                score += 0.1;
+            } else {
+                textSize(32);
+                textAlign(CENTER);
+                text('Game Over! Score: ' + floor(score), width / 2, height / 2);
+            }
+            
+            // Draw score
+            textSize(20);
+            textAlign(LEFT);
+            text('Score: ' + floor(score), 10, 30);
+        }
 
-        <footer class="text-center text-gray-600 mt-12">
-            <p>Skapad för att hylla Vipan och El och Energi – världens bästa och konstigaste skola! &copy; 2025</p>
-        </footer>
-    </div>
+        function keyPressed() {
+            if (keyCode === 32 && dinoY >= groundY && !gameOver) {
+                dinoVelocityY = jumpPower;
+            }
+        }
+    </script>
 </body>
 </html>

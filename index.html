@@ -252,7 +252,7 @@
 
       // --- Items ---
       if (Math.random() < 0.002) { // liten chans varje frame
-        const size = 40;
+        const size = 80;
         items.push({ x: canvas.width, y: groundY - size - rand(20,80), w: size, h: size });
       }
       for (const it of items) it.x -= state.speed * dt;

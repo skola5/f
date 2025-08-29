@@ -141,9 +141,11 @@
 
     let dinoSkins = [];
     let itemSkins = [];
+    let jumpSounds = [];
     let images = { cig: null, bak: null };
     let selectedDino = null;
     let selectedItem = null;
+    let selectedSound = null;
     let items = [];
     let collected = 0;
 
@@ -161,15 +163,16 @@
     };
 
     const characters = [
-      { file: "dino.png", name: "Martin Borg", color: "blue", item: "item.png" },
-      { file: "dino2.png", name: "Elisabeth Lindskoug", color: "darkgreen", item: "item2.png" },
-      { file: "dino3.png", name: "Jens Carlström", color: "red", item: "item3.png" },
-      { file: "dino4.png", name: "Thor Sörensen", color: "purple", item: "item4.png" }
+      { file: "dino.png", name: "Martin Borg", color: "blue", item: "item.png", jump: "jump.mp3" },
+      { file: "dino2.png", name: "Elisabeth Lindskoug", color: "darkgreen", item: "item2.png", jump: "jump2.mp3" },
+      { file: "dino3.png", name: "Jens Carlström", color: "red", item: "item3.png", jump: "jump3.mp3" },
+      { file: "dino4.png", name: "Thor Sörensen", color: "purple", item: "item4.png", jump: "jump4.mp3" }
     ];
 
     function chooseCharacter(index) {
       selectedDino = dinoSkins[index];
       selectedItem = itemSkins[index];
+      selectedSound = jumpSounds[index];
       startMenu.style.display = 'none';
     }
 
@@ -179,10 +182,12 @@
     function formatScore(n) { return String(Math.floor(n)).padStart(5, '0'); }
 
     function loadImage(src) { return new Promise((resolve, reject) => { const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=src; }); }
-    
+    function loadSound(src) { return new Promise((resolve, reject) => { const audio=new Audio(src); audio.oncanplaythrough=()=>resolve(audio); audio.onerror=reject; }); }
+
     async function preload() {
       dinoSkins = await Promise.all(characters.map(c => loadImage(c.file)));
       itemSkins = await Promise.all(characters.map(c => loadImage(c.item)));
+      jumpSounds = await Promise.all(characters.map(c => loadSound(c.jump)));
       const [cig, bak] = await Promise.all([loadImage('cig.png'), loadImage('bak.png')]);
       images.cig = cig;
       images.bak = bak;
@@ -206,10 +211,20 @@
       overlay.classList.remove('hidden'); overlay.querySelector('h2').textContent = 'Tryck för att starta';
     }
 
-    function startGame() { if (!images.cig || !images.bak || !selectedDino || !selectedItem) return; overlay.classList.add('hidden'); state.started = true; state.gameOver = false; lastTime = performance.now(); requestAnimationFrame(loop); }
+    function startGame() { if (!images.cig || !images.bak || !selectedDino || !selectedItem || !selectedSound) return; overlay.classList.add('hidden'); state.started = true; state.gameOver = false; lastTime = performance.now(); requestAnimationFrame(loop); }
     function gameOver() { state.gameOver = true; state.started = false; state.high = Math.max(state.high, Math.floor(state.score)); overlay.classList.remove('hidden'); overlay.querySelector('h2').textContent = 'Game Over'; overlay.querySelector('p').innerHTML = `Poäng: <strong>${Math.floor(state.score)}</strong> · Bästa: <strong>${state.high}</strong> · Saker: <strong>${collected}</strong>`; }
 
-    function tryJump() { if (state.gameOver) return; if (state.dino.onGround) { state.dino.vy = -CONFIG.jumpVelocity; state.dino.onGround = false; } }
+    function tryJump() { 
+      if (state.gameOver) return; 
+      if (state.dino.onGround) { 
+        state.dino.vy = -CONFIG.jumpVelocity; 
+        state.dino.onGround = false; 
+        if (selectedSound) { 
+          selectedSound.currentTime = 0; 
+          selectedSound.play(); 
+        }
+      } 
+    }
 
     window.addEventListener('keydown', (e) => { 
       if (['Space','ArrowUp','KeyW'].includes(e.code)) { 
@@ -251,8 +266,8 @@
       state.obstacles = state.obstacles.filter(o => o.x + o.w > -10);
 
       // --- Items ---
-      if (Math.random() < 0.002) { // liten chans varje frame
-        const size = 80;
+      if (Math.random() < 0.002) { 
+        const size = 80; // större items
         items.push({ x: canvas.width, y: groundY - size - rand(20,80), w: size, h: size });
       }
       for (const it of items) it.x -= state.speed * dt;
@@ -287,7 +302,8 @@
       if (state.gameOver) { ctx.textAlign='center'; ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(canvas.width/2-140,canvas.height/2-40,280,80); ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fillText('Tryck ENTER eller klicka för att spela igen',canvas.width/2,canvas.height/2+4); }
     }
 
-    function drawParallax(groundY) { const t=state.time; const base=state.speed*0.15; state.time+=0.016; ctx.globalAlpha=0.35; for(let i=0;i<40;i++){const x=((i*120+(t*base))%(canvas.width+120))-60; const y=40+(i*23)%(groundY-80); ctx.fillStyle='#a0aec0'; ctx.fillRect(x,y,2,2);} ctx.globalAlpha=1; ctx.strokeStyle='#12213a'; ctx.lineWidth=2; ctx.beginPath(); const h=groundY-18; for(let x=0;x<=canvas.width;x+=12){const y=h-Math.abs(Math.sin((x+t*40)*0.01))*8-8; if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke(); }
+    function drawParallax(groundY) { const t=state.time; const base=state.speed*0.15; state.time+=0.016; ctx.globalAlpha=0.35; for(let i=0;i<40;i++){const x=((i*120+(t*base))%(canvas.width+120))-60; const y=40+(i*23)%(groundY-80); ctx.fillStyle='#a0aec0'; ctx.fillRect(x,y,2,2);} ctx.globalAlpha=1; ctx.strokeStyle='#12213a'; ctx.lineWidth=2; ctx.beginPath(); const h=groundY-18; for(let x=0;x<=canvas.width;x+=12){const y=h-Math.abs(Math.sin((x+t*40)*0.
+01))*8-8; if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke(); }
 
     function fitCanvas() { const maxW=Math.min(1200,board.clientWidth); const aspect=canvas.width/canvas.height; canvas.style.width=maxW+'px'; canvas.style.height=(maxW/aspect)+'px'; }
     window.addEventListener('resize', fitCanvas);

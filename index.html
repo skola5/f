@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="sv">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Vipan Jumpper</title>
+  <title>Vipan Jumper</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -99,8 +98,8 @@
   <div class="wrap card">
     <header>
       <h1>Vipan Jumper</h1>
-      <div class="meta">
-      </header>
+      <div class="meta"></div>
+    </header>
 
     <div class="board" id="board">
       <div id="startMenu">
@@ -123,9 +122,12 @@
       <canvas id="game" width="1200" height="500" aria-label="Dino Jumper spelbräde"></canvas>
       <div class="overlay" id="overlay">
         <div>
-          <h2 style="color:white;"></h2> för att starta</h2>
-          <p style="color: #0000ff;" med ><style></style></p></strong>Mellanslag</strong>, <strong>↑</strong>, <strong>W</strong> eller <strong>Tryck/Touch</strong></p>
+          <h2 style="color:white;">Tryck för att starta</h2>
+          <p style="color: #0000ff;">
+            <strong>Mellanslag</strong>, <strong>↑</strong>, <strong>W</strong> eller <strong>Tryck/Touch</strong>
+          </p>
           <div class="btns"><button id="startBtn">Starta</button></div>
+        </div>
       </div>
     </div>
 
@@ -167,7 +169,13 @@
     };
 
     function chooseCharacter(img) {
-      selectedDino = img === 'dino.png' ? images.dino : images.dino2 : images.dino3;
+      if (img === 'dino.png') {
+        selectedDino = images.dino;
+      } else if (img === 'dino2.png') {
+        selectedDino = images.dino2;
+      } else {
+        selectedDino = images.dino3;
+      }
       startMenu.style.display = 'none';
     }
 

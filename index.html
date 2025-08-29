@@ -116,7 +116,7 @@
            </div>
           <div class="character-option" onclick="chooseCharacter('dino3.png')">
             <img src="dino3.png" alt="Jens Carlström">
-            <span style="color:darkgreen;">Jens Carlström</span>
+            <span style="color:red;">Jens Carlström</span>
           </div>
         </div>
       </div>
@@ -167,7 +167,7 @@
     };
 
     function chooseCharacter(img) {
-      selectedDino = img === 'dino.png' ? images.dino : images.dino2;
+      selectedDino = img === 'dino.png' ? images.dino : images.dino2 : images.dino3;
       startMenu.style.display = 'none';
     }
 
@@ -177,7 +177,7 @@
     function formatScore(n) { return String(Math.floor(n)).padStart(5, '0'); }
 
     function loadImage(src) { return new Promise((resolve, reject) => { const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=src; }); }
-    async function preload() { const [dino, dino2, cig, bak] = await Promise.all([loadImage('dino.png'), loadImage('dino2.png'), loadImage('cig.png'), loadImage('bak.png')]); images.dino = dino; images.dino2 = dino2; images.cig = cig; images.bak = bak; }
+    async function preload() { const [dino, dino2, cig, bak] = await Promise.all([loadImage('dino.png'), loadImage('dino2.png'), loadImage('dino3.png'), loadImage('cig.png'), loadImage('bak.png')]); images.dino = dino; images.dino2 = dino2; images.dino3 = dino3; images.cig = cig; images.bak = bak; }
 
     function reset() {
       state.started = false; state.gameOver = false; state.time = 0; state.speed = CONFIG.initialSpeed; state.score = 0; state.obstacles = []; state.spawnTimer = 0; state.nextSpawnIn = rand(CONFIG.spawnEveryMin, CONFIG.spawnEveryMax);

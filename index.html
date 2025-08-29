@@ -150,7 +150,7 @@
     const board = document.getElementById('board');
     const startMenu = document.getElementById('startMenu');
 
-    let images = { dino: null, dino2: null, cig: null, bak: null };
+    let images = { dino: null, dino2: null, dino3: null, cig: null, bak: null };
     let selectedDino = null;
 
     const state = {
@@ -255,7 +255,7 @@
     function fitCanvas() { const maxW=Math.min(1200,board.clientWidth); const aspect=canvas.width/canvas.height; canvas.style.width=maxW+'px'; canvas.style.height=(maxW/aspect)+'px'; }
     window.addEventListener('resize', fitCanvas);
 
-    (async function boot(){ try{ await preload(); } catch(e){ console.error('Kunde inte ladda bilderna. Se till att dino.png, dino2.png, cig.png och bak.png ligger bredvid index.html.', e); } fitCanvas(); reset(); render(); })();
+    (async function boot(){ try{ await preload(); } catch(e){ console.error('Kunde inte ladda bilderna. Se till att dino.png, dino2.png, dino3.png, cig.png och bak.png ligger bredvid index.html.', e); } fitCanvas(); reset(); render(); })();
   </script>
 </body>
 </html>

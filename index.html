@@ -73,6 +73,8 @@
     }
     .character-select {
       display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     .character-option {
       display: flex;
@@ -104,20 +106,7 @@
     <div class="board" id="board">
       <div id="startMenu">
         <h2 style="color: #ff0000;">Välj din karaktär</h2>
-        <div class="character-select">
-          <div class="character-option" onclick="chooseCharacter('dino.png')">
-            <img src="dino.png" alt="Martin Borg">
-            <span style="color: #0000ff;">Martin Borg</span>
-          </div>
-          <div class="character-option" onclick="chooseCharacter('dino2.png')">
-            <img src="dino2.png" alt="Elisabeth Lindskoug">
-            <span style="color:darkgreen;">Elisabeth Lindskoug</span>
-           </div>
-          <div class="character-option" onclick="chooseCharacter('dino3.png')">
-            <img src="dino3.png" alt="Jens Carlström">
-            <span style="color:red;">Jens Carlström</span>
-          </div>
-        </div>
+        <div class="character-select" id="characterSelect"></div>
       </div>
       <canvas id="game" width="1200" height="500" aria-label="Dino Jumper spelbräde"></canvas>
       <div class="overlay" id="overlay">
@@ -151,8 +140,10 @@
     const startBtn = document.getElementById('startBtn');
     const board = document.getElementById('board');
     const startMenu = document.getElementById('startMenu');
+    const characterSelect = document.getElementById('characterSelect');
 
-    let images = { dino: null, dino2: null, dino3: null, cig: null, bak: null };
+    let dinoSkins = [];
+    let images = { cig: null, bak: null };
     let selectedDino = null;
 
     const state = {
@@ -168,14 +159,15 @@
       nextSpawnIn: 1.2,
     };
 
-    function chooseCharacter(img) {
-      if (img === 'dino.png') {
-        selectedDino = images.dino;
-      } else if (img === 'dino2.png') {
-        selectedDino = images.dino2;
-      } else {
-        selectedDino = images.dino3;
-      }
+    const characters = [
+      { file: "dino.png", name: "Martin Borg", color: "blue" },
+      { file: "dino2.png", name: "Elisabeth Lindskoug", color: "darkgreen" },
+      { file: "dino3.png", name: "Jens Carlström", color: "red" },
+      { file: "dino4.png", name: "Thor Sörensen", color: "purple" } // 👈 ny karaktär
+    ];
+
+    function chooseCharacter(index) {
+      selectedDino = dinoSkins[index];
       startMenu.style.display = 'none';
     }
 
@@ -185,7 +177,22 @@
     function formatScore(n) { return String(Math.floor(n)).padStart(5, '0'); }
 
     function loadImage(src) { return new Promise((resolve, reject) => { const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=src; }); }
-    async function preload() { const [dino, dino2, dino3, cig, bak] = await Promise.all([loadImage('dino.png'), loadImage('dino2.png'), loadImage('dino3.png'), loadImage('cig.png'), loadImage('bak.png')]); images.dino = dino; images.dino2 = dino2; images.dino3 = dino3; images.cig = cig; images.bak = bak; }
+    
+    async function preload() {
+      dinoSkins = await Promise.all(characters.map(c => loadImage(c.file)));
+      const [cig, bak] = await Promise.all([loadImage('cig.png'), loadImage('bak.png')]);
+      images.cig = cig;
+      images.bak = bak;
+
+      // skapa karaktärsval i HTML
+      characters.forEach((c, i) => {
+        const div = document.createElement("div");
+        div.className = "character-option";
+        div.innerHTML = `<img src="${c.file}" alt="${c.name}"><span style="color:${c.color};">${c.name}</span>`;
+        div.onclick = () => chooseCharacter(i);
+        characterSelect.appendChild(div);
+      });
+    }
 
     function reset() {
       state.started = false; state.gameOver = false; state.time = 0; state.speed = CONFIG.initialSpeed; state.score = 0; state.obstacles = []; state.spawnTimer = 0; state.nextSpawnIn = rand(CONFIG.spawnEveryMin, CONFIG.spawnEveryMax);
@@ -195,7 +202,7 @@
       overlay.classList.remove('hidden'); overlay.querySelector('h2').textContent = 'Tryck för att starta';
     }
 
-    function startGame() { if (!images.dino || !images.dino2 || !images.dino3 || !images.cig || !images.bak || !selectedDino) return; overlay.classList.add('hidden'); state.started = true; state.gameOver = false; lastTime = performance.now(); requestAnimationFrame(loop); }
+    function startGame() { if (!images.cig || !images.bak || !selectedDino) return; overlay.classList.add('hidden'); state.started = true; state.gameOver = false; lastTime = performance.now(); requestAnimationFrame(loop); }
     function gameOver() { state.gameOver = true; state.started = false; state.high = Math.max(state.high, Math.floor(state.score)); overlay.classList.remove('hidden'); overlay.querySelector('h2').textContent = 'Game Over'; overlay.querySelector('p').innerHTML = `Poäng: <strong>${Math.floor(state.score)}</strong> · Bästa: <strong>${state.high}</strong>`; }
 
     function tryJump() { if (state.gameOver) return; if (state.dino.onGround) { state.dino.vy = -CONFIG.jumpVelocity; state.dino.onGround = false; } }
@@ -263,7 +270,7 @@
     function fitCanvas() { const maxW=Math.min(1200,board.clientWidth); const aspect=canvas.width/canvas.height; canvas.style.width=maxW+'px'; canvas.style.height=(maxW/aspect)+'px'; }
     window.addEventListener('resize', fitCanvas);
 
-    (async function boot(){ try{ await preload(); } catch(e){ console.error('Kunde inte ladda bilderna. Se till att dino.png, dino2.png, dino3.png, cig.png och bak.png ligger bredvid index.html.', e); } fitCanvas(); reset(); render(); })();
+    (async function boot(){ try{ await preload(); } catch(e){ console.error('Kunde inte ladda bilderna.', e); } fitCanvas(); reset(); render(); })();
   </script>
 </body>
 </html>

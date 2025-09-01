@@ -347,9 +347,8 @@
     if (selectedDino) ctx.drawImage(selectedDino, state.dino.x, state.dino.y, CONFIG.dinoDisplaySize.w, CONFIG.dinoDisplaySize.h);
     ctx.font='bold 20px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas'; ctx.textAlign='left'; ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fillText(`POÄNG ${formatScore(state.score)} · Saker ${collected}`,14,28);
     ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.fillText(`BÄSTA ${formatScore(state.high)}`,canvas.width-14,28);
-    if (state.gameOver) { ctx.textAlign='center'; ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(canvas.width/2-140,canvas.height/2-40,280,80); ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fillText('Tryck ENTER eller klicka för att spela igen',canvas.width/2,canvas.height/2+4); }
-  }
-
+    if (state.gameOver) }
+   
   function drawParallax(groundY) {
     const t=state.time;
     const base=state.speed*0.15;

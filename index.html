@@ -110,7 +110,7 @@
         <div>
           <h2 style="color:white;">Tryck för att starta</h2>
           <p style="color: #0000ff;">
-            <strong style="color:white;">Mellanslag</strong>, <strong style="color:white;">↑</strong>, <strong style="color:white;">W</strong> <strong style="color:white;">eller<strong></strong> <strong style="color:white;">Tryck/Touch</strong>
+            <strong style="color:white;">Mellanslag</strong> <strong style="color:white;">↑</strong> <strong style="color:white;">W</strong> <strong style="color:white;">eller<strong></strong> <strong style="color:white;">Tryck/Touch</strong>
           </p>
           <div class="btns"><button id="startBtn">Starta</button></div>
         </div>
@@ -252,7 +252,7 @@
     state.high = Math.max(state.high, Math.floor(state.score));
     overlay.classList.remove('hidden');
     overlay.querySelector('h2').textContent = 'Game Over';
-    overlay.querySelector('p').innerHTML = `Poäng: <strong style="color:white;">${Math.floor(state.score)}</strong> · Bästa: <strong>${state.high}</strong> · Saker: <strong>${collected}</strong>`;
+    overlay.querySelector('p').innerHTML = `style="color:white;"Poäng: <strong style="color:white;">${Math.floor(state.score)}</strong> · style="color:white;"Bästa: <strongstyle="color:white;">${state.high}</strong> · style="color:white;"Saker: <strongstyle="color:white;">${collected}</strong>`;
     gameMusic.pause();
     gameMusic.currentTime = 0;
     lobbyMusic.play();

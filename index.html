@@ -252,7 +252,7 @@
     state.high = Math.max(state.high, Math.floor(state.score));
     overlay.classList.remove('hidden');
     overlay.querySelector('h2').textContent = 'Game Over';
-    overlay.querySelector('p').innerHTML = `style="color:white;"Poäng: <strong style="color:white;">${Math.floor(state.score)}</strong> · style="color:white;"Bästa: <strongstyle="color:white;">${state.high}</strong> · style="color:white;"Saker: <strongstyle="color:white;">${collected}</strong>`;
+    overlay.querySelector('p').innerHTML = "Poäng: <strong style="color:white;">${Math.floor(state.score)}</strong> · "Bästa: <strongstyle="color:white;">${state.high}</strong> · "Saker: <strongstyle="color:white;">${collected}</strong>`;
     gameMusic.pause();
     gameMusic.currentTime = 0;
     lobbyMusic.play();

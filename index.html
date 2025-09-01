@@ -337,18 +337,7 @@
     }
   }
 
-  function render() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.drawImage(images.bak, 0, 0, canvas.width, canvas.height);
-    const groundY = canvas.height - CONFIG.groundHeight; ctx.fillStyle='#0f1b2f'; ctx.fillRect(0,groundY,canvas.width,CONFIG.groundHeight);
-    drawParallax(groundY);
-    for (const o of state.obstacles) ctx.drawImage(images.cig, o.x, o.y, o.w, o.h);
-    for (const it of items) if (selectedItem) ctx.drawImage(selectedItem, it.x, it.y, it.w, it.h);
-    if (selectedDino) ctx.drawImage(selectedDino, state.dino.x, state.dino.y, CONFIG.dinoDisplaySize.w, CONFIG.dinoDisplaySize.h);
-    ctx.font='bold 20px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas'; ctx.textAlign='left'; ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fillText(`POÄNG ${formatScore(state.score)} · Saker ${collected}`,14,28);
-    ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.fillText(`BÄSTA ${formatScore(state.high)}`,canvas.width-14,28);
-    if (state.gameOver) }
-   
+
   function drawParallax(groundY) {
     const t=state.time;
     const base=state.speed*0.15;

@@ -302,8 +302,31 @@
       if (state.gameOver) { ctx.textAlign='center'; ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(canvas.width/2-140,canvas.height/2-40,280,80); ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fillText('Tryck ENTER eller klicka för att spela igen',canvas.width/2,canvas.height/2+4); }
     }
 
-    function drawParallax(groundY) { const t=state.time; const base=state.speed*0.15; state.time+=0.016; ctx.globalAlpha=0.35; for(let i=0;i<40;i++){const x=((i*120+(t*base))%(canvas.width+120))-60; const y=40+(i*23)%(groundY-80); ctx.fillStyle='#a0aec0'; ctx.fillRect(x,y,2,2);} ctx.globalAlpha=1; ctx.strokeStyle='#12213a'; ctx.lineWidth=2; ctx.beginPath(); const h=groundY-18; for(let x=0;x<=canvas.width;x+=12){const y=h-Math.abs(Math.sin((x+t*40)*0.
-01))*8-8; if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.stroke(); }
+   function drawParallax(groundY) {
+  const t = state.time;
+  const base = state.speed * 0.15;
+  state.time += 0.016;
+
+  ctx.globalAlpha = 0.35;
+  for (let i = 0; i < 40; i++) {
+    const x = ((i * 120 + (t * base)) % (canvas.width + 120)) - 60;
+    const y = 40 + (i * 23) % (groundY - 80);
+    ctx.fillStyle = '#a0aec0';
+    ctx.fillRect(x, y, 2, 2);
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.strokeStyle = '#12213a';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  const h = groundY - 18;
+  for (let x = 0; x <= canvas.width; x += 12) {
+    const y = h - Math.abs(Math.sin((x + t * 40) * 0.01)) * 8 - 8;
+    if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+}
+
 
     function fitCanvas() { const maxW=Math.min(1200,board.clientWidth); const aspect=canvas.width/canvas.height; canvas.style.width=maxW+'px'; canvas.style.height=(maxW/aspect)+'px'; }
     window.addEventListener('resize', fitCanvas);
